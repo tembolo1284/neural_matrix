@@ -2,14 +2,14 @@
 #define NEURAL_LAYER_H
 
 #include "log.h"
-#include "../matrix_lib/include/matrix.h"
+#include "matrix.h"
 
 typedef struct layer_s {
     unsigned int input_dim;
     unsigned int output_dim;
     
-    // Forward pass
-    matrix* (*forward)(struct layer_s* layer, matrix* input);
+    // Forward pass - make it a variadic function
+    matrix* (*forward)(struct layer_s* layer, ...);
     
     // Backward pass
     matrix* (*backward)(struct layer_s* layer, matrix* gradient);

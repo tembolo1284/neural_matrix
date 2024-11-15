@@ -46,8 +46,8 @@ build cmake_object_order_depends_target_neural_networks: phony || cmake_object_o
 
 build CMakeFiles/neural_networks.dir/src/layer.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/layer.c || cmake_object_order_depends_target_neural_networks
   DEP_FILE = CMakeFiles/neural_networks.dir/src/layer.c.o.d
-  FLAGS = -Wall -Wextra -Werror -Wpedantic
-  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/neural_networks.dir
   OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
   TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
@@ -55,8 +55,8 @@ build CMakeFiles/neural_networks.dir/src/layer.c.o: C_COMPILER__neural_networks_
 
 build CMakeFiles/neural_networks.dir/src/dense_layer.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/dense_layer.c || cmake_object_order_depends_target_neural_networks
   DEP_FILE = CMakeFiles/neural_networks.dir/src/dense_layer.c.o.d
-  FLAGS = -Wall -Wextra -Werror -Wpedantic
-  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/neural_networks.dir
   OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
   TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
@@ -64,17 +64,8 @@ build CMakeFiles/neural_networks.dir/src/dense_layer.c.o: C_COMPILER__neural_net
 
 build CMakeFiles/neural_networks.dir/src/activation.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/activation.c || cmake_object_order_depends_target_neural_networks
   DEP_FILE = CMakeFiles/neural_networks.dir/src/activation.c.o.d
-  FLAGS = -Wall -Wextra -Werror -Wpedantic
-  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
-  OBJECT_DIR = CMakeFiles/neural_networks.dir
-  OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
-  TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
-  TARGET_PDB = libneural_networks.pdb
-
-build CMakeFiles/neural_networks.dir/src/loss.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/loss.c || cmake_object_order_depends_target_neural_networks
-  DEP_FILE = CMakeFiles/neural_networks.dir/src/loss.c.o.d
-  FLAGS = -Wall -Wextra -Werror -Wpedantic
-  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/neural_networks.dir
   OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
   TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
@@ -82,8 +73,26 @@ build CMakeFiles/neural_networks.dir/src/loss.c.o: C_COMPILER__neural_networks_ 
 
 build CMakeFiles/neural_networks.dir/src/optimization.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/optimization.c || cmake_object_order_depends_target_neural_networks
   DEP_FILE = CMakeFiles/neural_networks.dir/src/optimization.c.o.d
-  FLAGS = -Wall -Wextra -Werror -Wpedantic
-  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  OBJECT_DIR = CMakeFiles/neural_networks.dir
+  OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
+  TARGET_PDB = libneural_networks.pdb
+
+build CMakeFiles/neural_networks.dir/src/loss.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/loss.c || cmake_object_order_depends_target_neural_networks
+  DEP_FILE = CMakeFiles/neural_networks.dir/src/loss.c.o.d
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  OBJECT_DIR = CMakeFiles/neural_networks.dir
+  OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
+  TARGET_PDB = libneural_networks.pdb
+
+build CMakeFiles/neural_networks.dir/src/log.c.o: C_COMPILER__neural_networks_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/log.c || cmake_object_order_depends_target_neural_networks
+  DEP_FILE = CMakeFiles/neural_networks.dir/src/log.c.o.d
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/neural_networks.dir
   OBJECT_FILE_DIR = CMakeFiles/neural_networks.dir/src
   TARGET_COMPILE_PDB = CMakeFiles/neural_networks.dir/neural_networks.pdb
@@ -97,7 +106,8 @@ build CMakeFiles/neural_networks.dir/src/optimization.c.o: C_COMPILER__neural_ne
 #############################################
 # Link the static library libneural_networks.a
 
-build libneural_networks.a: C_STATIC_LIBRARY_LINKER__neural_networks_ CMakeFiles/neural_networks.dir/src/layer.c.o CMakeFiles/neural_networks.dir/src/dense_layer.c.o CMakeFiles/neural_networks.dir/src/activation.c.o CMakeFiles/neural_networks.dir/src/loss.c.o CMakeFiles/neural_networks.dir/src/optimization.c.o || matrix_lib_build/libmatrix.a
+build libneural_networks.a: C_STATIC_LIBRARY_LINKER__neural_networks_ CMakeFiles/neural_networks.dir/src/layer.c.o CMakeFiles/neural_networks.dir/src/dense_layer.c.o CMakeFiles/neural_networks.dir/src/activation.c.o CMakeFiles/neural_networks.dir/src/optimization.c.o CMakeFiles/neural_networks.dir/src/loss.c.o CMakeFiles/neural_networks.dir/src/log.c.o || matrix_lib_build/libmatrix.a
+  LANGUAGE_COMPILE_FLAGS = -g -O0
   OBJECT_DIR = CMakeFiles/neural_networks.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -116,6 +126,7 @@ build cmake_object_order_depends_target_layer_test: phony || cmake_object_order_
 
 build CMakeFiles/layer_test.dir/tests/layer_test.c.o: C_COMPILER__layer_test_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/tests/layer_test.c || cmake_object_order_depends_target_layer_test
   DEP_FILE = CMakeFiles/layer_test.dir/tests/layer_test.c.o.d
+  FLAGS = -g -O0 -g
   INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/layer_test.dir
   OBJECT_FILE_DIR = CMakeFiles/layer_test.dir/tests
@@ -131,6 +142,7 @@ build CMakeFiles/layer_test.dir/tests/layer_test.c.o: C_COMPILER__layer_test_ /h
 # Link the executable layer_test
 
 build layer_test: C_EXECUTABLE_LINKER__layer_test_ CMakeFiles/layer_test.dir/tests/layer_test.c.o | libneural_networks.a matrix_lib_build/libmatrix.a /usr/lib/x86_64-linux-gnu/libcriterion.so || libneural_networks.a matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
   LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  /usr/lib/x86_64-linux-gnu/libcriterion.so  -lm
   OBJECT_DIR = CMakeFiles/layer_test.dir
   POST_BUILD = :
@@ -150,6 +162,7 @@ build cmake_object_order_depends_target_dense_layer_test: phony || cmake_object_
 
 build CMakeFiles/dense_layer_test.dir/tests/dense_layer_test.c.o: C_COMPILER__dense_layer_test_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/tests/dense_layer_test.c || cmake_object_order_depends_target_dense_layer_test
   DEP_FILE = CMakeFiles/dense_layer_test.dir/tests/dense_layer_test.c.o.d
+  FLAGS = -g -O0 -g
   INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/dense_layer_test.dir
   OBJECT_FILE_DIR = CMakeFiles/dense_layer_test.dir/tests
@@ -165,6 +178,7 @@ build CMakeFiles/dense_layer_test.dir/tests/dense_layer_test.c.o: C_COMPILER__de
 # Link the executable dense_layer_test
 
 build dense_layer_test: C_EXECUTABLE_LINKER__dense_layer_test_ CMakeFiles/dense_layer_test.dir/tests/dense_layer_test.c.o | libneural_networks.a matrix_lib_build/libmatrix.a /usr/lib/x86_64-linux-gnu/libcriterion.so || libneural_networks.a matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
   LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  /usr/lib/x86_64-linux-gnu/libcriterion.so  -lm
   OBJECT_DIR = CMakeFiles/dense_layer_test.dir
   POST_BUILD = :
@@ -184,6 +198,7 @@ build cmake_object_order_depends_target_activation_test: phony || cmake_object_o
 
 build CMakeFiles/activation_test.dir/tests/activation_test.c.o: C_COMPILER__activation_test_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/tests/activation_test.c || cmake_object_order_depends_target_activation_test
   DEP_FILE = CMakeFiles/activation_test.dir/tests/activation_test.c.o.d
+  FLAGS = -g -O0 -g
   INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/activation_test.dir
   OBJECT_FILE_DIR = CMakeFiles/activation_test.dir/tests
@@ -199,6 +214,7 @@ build CMakeFiles/activation_test.dir/tests/activation_test.c.o: C_COMPILER__acti
 # Link the executable activation_test
 
 build activation_test: C_EXECUTABLE_LINKER__activation_test_ CMakeFiles/activation_test.dir/tests/activation_test.c.o | libneural_networks.a matrix_lib_build/libmatrix.a /usr/lib/x86_64-linux-gnu/libcriterion.so || libneural_networks.a matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
   LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  /usr/lib/x86_64-linux-gnu/libcriterion.so  -lm
   OBJECT_DIR = CMakeFiles/activation_test.dir
   POST_BUILD = :
@@ -206,40 +222,6 @@ build activation_test: C_EXECUTABLE_LINKER__activation_test_ CMakeFiles/activati
   TARGET_COMPILE_PDB = CMakeFiles/activation_test.dir/
   TARGET_FILE = activation_test
   TARGET_PDB = activation_test.pdb
-
-# =============================================================================
-# Object build statements for EXECUTABLE target loss_test
-
-
-#############################################
-# Order-only phony target for loss_test
-
-build cmake_object_order_depends_target_loss_test: phony || cmake_object_order_depends_target_matrix cmake_object_order_depends_target_neural_networks
-
-build CMakeFiles/loss_test.dir/tests/loss_test.c.o: C_COMPILER__loss_test_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/tests/loss_test.c || cmake_object_order_depends_target_loss_test
-  DEP_FILE = CMakeFiles/loss_test.dir/tests/loss_test.c.o.d
-  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
-  OBJECT_DIR = CMakeFiles/loss_test.dir
-  OBJECT_FILE_DIR = CMakeFiles/loss_test.dir/tests
-  TARGET_COMPILE_PDB = CMakeFiles/loss_test.dir/
-  TARGET_PDB = loss_test.pdb
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target loss_test
-
-
-#############################################
-# Link the executable loss_test
-
-build loss_test: C_EXECUTABLE_LINKER__loss_test_ CMakeFiles/loss_test.dir/tests/loss_test.c.o | libneural_networks.a matrix_lib_build/libmatrix.a /usr/lib/x86_64-linux-gnu/libcriterion.so || libneural_networks.a matrix_lib_build/libmatrix.a
-  LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  /usr/lib/x86_64-linux-gnu/libcriterion.so  -lm
-  OBJECT_DIR = CMakeFiles/loss_test.dir
-  POST_BUILD = :
-  PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/loss_test.dir/
-  TARGET_FILE = loss_test
-  TARGET_PDB = loss_test.pdb
 
 # =============================================================================
 # Object build statements for EXECUTABLE target optimization_test
@@ -252,6 +234,7 @@ build cmake_object_order_depends_target_optimization_test: phony || cmake_object
 
 build CMakeFiles/optimization_test.dir/tests/optimization_test.c.o: C_COMPILER__optimization_test_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/tests/optimization_test.c || cmake_object_order_depends_target_optimization_test
   DEP_FILE = CMakeFiles/optimization_test.dir/tests/optimization_test.c.o.d
+  FLAGS = -g -O0 -g
   INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = CMakeFiles/optimization_test.dir
   OBJECT_FILE_DIR = CMakeFiles/optimization_test.dir/tests
@@ -267,6 +250,7 @@ build CMakeFiles/optimization_test.dir/tests/optimization_test.c.o: C_COMPILER__
 # Link the executable optimization_test
 
 build optimization_test: C_EXECUTABLE_LINKER__optimization_test_ CMakeFiles/optimization_test.dir/tests/optimization_test.c.o | libneural_networks.a matrix_lib_build/libmatrix.a /usr/lib/x86_64-linux-gnu/libcriterion.so || libneural_networks.a matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
   LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  /usr/lib/x86_64-linux-gnu/libcriterion.so  -lm
   OBJECT_DIR = CMakeFiles/optimization_test.dir
   POST_BUILD = :
@@ -274,6 +258,78 @@ build optimization_test: C_EXECUTABLE_LINKER__optimization_test_ CMakeFiles/opti
   TARGET_COMPILE_PDB = CMakeFiles/optimization_test.dir/
   TARGET_FILE = optimization_test
   TARGET_PDB = optimization_test.pdb
+
+# =============================================================================
+# Object build statements for EXECUTABLE target loss_test
+
+
+#############################################
+# Order-only phony target for loss_test
+
+build cmake_object_order_depends_target_loss_test: phony || cmake_object_order_depends_target_matrix cmake_object_order_depends_target_neural_networks
+
+build CMakeFiles/loss_test.dir/tests/loss_test.c.o: C_COMPILER__loss_test_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/tests/loss_test.c || cmake_object_order_depends_target_loss_test
+  DEP_FILE = CMakeFiles/loss_test.dir/tests/loss_test.c.o.d
+  FLAGS = -g -O0 -g
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  OBJECT_DIR = CMakeFiles/loss_test.dir
+  OBJECT_FILE_DIR = CMakeFiles/loss_test.dir/tests
+  TARGET_COMPILE_PDB = CMakeFiles/loss_test.dir/
+  TARGET_PDB = loss_test.pdb
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target loss_test
+
+
+#############################################
+# Link the executable loss_test
+
+build loss_test: C_EXECUTABLE_LINKER__loss_test_ CMakeFiles/loss_test.dir/tests/loss_test.c.o | libneural_networks.a matrix_lib_build/libmatrix.a /usr/lib/x86_64-linux-gnu/libcriterion.so || libneural_networks.a matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
+  LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  /usr/lib/x86_64-linux-gnu/libcriterion.so  -lm
+  OBJECT_DIR = CMakeFiles/loss_test.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/loss_test.dir/
+  TARGET_FILE = loss_test
+  TARGET_PDB = loss_test.pdb
+
+# =============================================================================
+# Object build statements for EXECUTABLE target neural_networks_main
+
+
+#############################################
+# Order-only phony target for neural_networks_main
+
+build cmake_object_order_depends_target_neural_networks_main: phony || cmake_object_order_depends_target_matrix cmake_object_order_depends_target_neural_networks
+
+build CMakeFiles/neural_networks_main.dir/src/main.c.o: C_COMPILER__neural_networks_main_ /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/src/main.c || cmake_object_order_depends_target_neural_networks_main
+  DEP_FILE = CMakeFiles/neural_networks_main.dir/src/main.c.o.d
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic -g
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/include -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  OBJECT_DIR = CMakeFiles/neural_networks_main.dir
+  OBJECT_FILE_DIR = CMakeFiles/neural_networks_main.dir/src
+  TARGET_COMPILE_PDB = CMakeFiles/neural_networks_main.dir/
+  TARGET_PDB = neural_networks_main.pdb
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target neural_networks_main
+
+
+#############################################
+# Link the executable neural_networks_main
+
+build neural_networks_main: C_EXECUTABLE_LINKER__neural_networks_main_ CMakeFiles/neural_networks_main.dir/src/main.c.o | libneural_networks.a matrix_lib_build/libmatrix.a || libneural_networks.a matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
+  LINK_LIBRARIES = libneural_networks.a  matrix_lib_build/libmatrix.a  -lm
+  OBJECT_DIR = CMakeFiles/neural_networks_main.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_COMPILE_PDB = CMakeFiles/neural_networks_main.dir/
+  TARGET_FILE = neural_networks_main
+  TARGET_PDB = neural_networks_main.pdb
 
 
 #############################################
@@ -326,7 +382,7 @@ build cmake_object_order_depends_target_matrix: phony || matrix_lib_build/CMakeF
 
 build matrix_lib_build/CMakeFiles/matrix.dir/src/matrix.c.o: C_COMPILER__matrix_ /home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/src/matrix.c || cmake_object_order_depends_target_matrix
   DEP_FILE = matrix_lib_build/CMakeFiles/matrix.dir/src/matrix.c.o.d
-  FLAGS = -Wall -Wextra -Werror -Wpedantic
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
   INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
   OBJECT_DIR = matrix_lib_build/CMakeFiles/matrix.dir
   OBJECT_FILE_DIR = matrix_lib_build/CMakeFiles/matrix.dir/src
@@ -342,12 +398,49 @@ build matrix_lib_build/CMakeFiles/matrix.dir/src/matrix.c.o: C_COMPILER__matrix_
 # Link the static library matrix_lib_build/libmatrix.a
 
 build matrix_lib_build/libmatrix.a: C_STATIC_LIBRARY_LINKER__matrix_ matrix_lib_build/CMakeFiles/matrix.dir/src/matrix.c.o
+  LANGUAGE_COMPILE_FLAGS = -g -O0
   OBJECT_DIR = matrix_lib_build/CMakeFiles/matrix.dir
   POST_BUILD = :
   PRE_LINK = :
   TARGET_COMPILE_PDB = matrix_lib_build/CMakeFiles/matrix.dir/matrix.pdb
   TARGET_FILE = matrix_lib_build/libmatrix.a
   TARGET_PDB = matrix_lib_build/libmatrix.pdb
+
+# =============================================================================
+# Object build statements for EXECUTABLE target main
+
+
+#############################################
+# Order-only phony target for main
+
+build cmake_object_order_depends_target_main: phony || cmake_object_order_depends_target_matrix
+
+build matrix_lib_build/CMakeFiles/main.dir/main.c.o: C_COMPILER__main_ /home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/main.c || cmake_object_order_depends_target_main
+  DEP_FILE = matrix_lib_build/CMakeFiles/main.dir/main.c.o.d
+  FLAGS = -g -O0 -Wall -Wextra -Werror -Wpedantic
+  INCLUDES = -I/home/tembolo381/Desktop/c-workspace/neural_matrix/matrix_lib/include
+  OBJECT_DIR = matrix_lib_build/CMakeFiles/main.dir
+  OBJECT_FILE_DIR = matrix_lib_build/CMakeFiles/main.dir
+  TARGET_COMPILE_PDB = matrix_lib_build/CMakeFiles/main.dir/
+  TARGET_PDB = matrix_lib_build/main.pdb
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target main
+
+
+#############################################
+# Link the executable matrix_lib_build/main
+
+build matrix_lib_build/main: C_EXECUTABLE_LINKER__main_ matrix_lib_build/CMakeFiles/main.dir/main.c.o | matrix_lib_build/libmatrix.a || matrix_lib_build/libmatrix.a
+  FLAGS = -g -O0
+  LINK_LIBRARIES = matrix_lib_build/libmatrix.a  -lm
+  OBJECT_DIR = matrix_lib_build/CMakeFiles/main.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_COMPILE_PDB = matrix_lib_build/CMakeFiles/main.dir/
+  TARGET_FILE = matrix_lib_build/main
+  TARGET_PDB = matrix_lib_build/main.pdb
 
 
 #############################################
@@ -389,6 +482,8 @@ build matrix_lib_build/rebuild_cache: phony matrix_lib_build/CMakeFiles/rebuild_
 
 build libmatrix.a: phony matrix_lib_build/libmatrix.a
 
+build main: phony matrix_lib_build/main
+
 build matrix: phony matrix_lib_build/libmatrix.a
 
 build neural_networks: phony libneural_networks.a
@@ -401,14 +496,14 @@ build neural_networks: phony libneural_networks.a
 #############################################
 # Folder: /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/build
 
-build all: phony libneural_networks.a layer_test dense_layer_test activation_test loss_test optimization_test matrix_lib_build/all
+build all: phony libneural_networks.a layer_test dense_layer_test activation_test optimization_test loss_test neural_networks_main matrix_lib_build/all
 
 # =============================================================================
 
 #############################################
 # Folder: /home/tembolo381/Desktop/c-workspace/neural_matrix/neural_networks/build/matrix_lib_build
 
-build matrix_lib_build/all: phony matrix_lib_build/libmatrix.a
+build matrix_lib_build/all: phony matrix_lib_build/libmatrix.a matrix_lib_build/main
 
 # =============================================================================
 # Built-in targets

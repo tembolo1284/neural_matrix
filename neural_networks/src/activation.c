@@ -1,22 +1,48 @@
 #include "activation.h"
-#include <stdlib.h>
+#include "matrix.h"
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+// Function prototypes for activation functions
+static matrix* relu_forward(matrix* input);
+static matrix* relu_backward(matrix* input, matrix* grad_output);
+static matrix* sigmoid_forward(matrix* input);
+static matrix* sigmoid_backward(matrix* input, matrix* grad_output);
+static matrix* tanh_forward(matrix* input);
+static matrix* tanh_backward(matrix* input, matrix* grad_output);
+static matrix* softmax_forward(matrix* input);
+static matrix* softmax_backward(matrix* input, matrix* grad_output);
+
+// Wrapper for variadic forward propagation
+static matrix* activation_forward_wrapper(layer* l, ...) {
+    fprintf(stderr, "Entering activation_forward_wrapper...\n");
+    va_list args;
+    va_start(args, l);
+    matrix* input = va_arg(args, matrix*);
+    va_end(args);
+    return activation_forward(l, input);
+}
+
+// Modified backward wrapper to match the layer struct's function pointer signature
+static matrix* activation_backward_wrapper(layer* l, matrix* gradient) {
+    fprintf(stderr, "Entering activation_backward_wrapper...\n");
+    return activation_backward(l, gradient);
+}
 
 layer* activation_layer_new(unsigned int dim, activation_type type) {
-    log_debug("Creating activation layer with dim=%u, type=%d", dim, type);
+    fprintf(stderr, "Creating activation layer with dim=%u and type=%d...\n", dim, type);
 
-    // Create base layer (input_dim = output_dim for activation layers)
     layer* l = layer_new(dim, dim);
     if (!l) {
-        log_error("Failed to create base layer for activation layer");
+        fprintf(stderr, "Error: Failed to create layer in activation_layer_new\n");
         return NULL;
     }
 
-    // Allocate activation parameters
     activation_parameters* params = calloc(1, sizeof(activation_parameters));
     if (!params) {
-        log_error("Failed to allocate activation parameters");
-        layer_free(l);
+        fprintf(stderr, "Error: Failed to allocate parameters in activation_layer_new\n");
+        free(l);  // Don't use layer_free here as parameters aren't set up yet
         return NULL;
     }
 
@@ -24,21 +50,169 @@ layer* activation_layer_new(unsigned int dim, activation_type type) {
     params->input = NULL;
     params->output = NULL;
 
-    // Set layer parameters and functions
     l->parameters = params;
-    l->forward = activation_forward;
-    l->backward = activation_backward;
-    l->update = activation_update;
+    l->forward = activation_forward_wrapper;
+    l->backward = activation_backward_wrapper;
     l->free = activation_free;
 
-    log_info("Successfully created activation layer");
+    fprintf(stderr, "Activation layer created successfully\n");
     return l;
 }
 
-matrix* relu_forward(matrix* input) {
-    matrix* output = matrix_new(input->num_rows, input->num_cols, sizeof(double));
+matrix* activation_forward(layer* l, matrix* input) {
+    fprintf(stderr, "Entering activation_forward...\n");
+    if (!l || !input) {
+        fprintf(stderr, "Error: Null layer or input in activation_forward\n");
+        return NULL;
+    }
+
+    activation_parameters* params = (activation_parameters*)l->parameters;
+    if (!params) {
+        fprintf(stderr, "Error: Null parameters in activation_forward\n");
+        return NULL;
+    }
+
+    // Clean up previous cached input if it exists
+    if (params->input) {
+        fprintf(stderr, "Freeing previous cached input\n");
+        matrix_free(params->input);
+    }
+
+    // Cache the input for backward pass
+    params->input = matrix_copy(input);
+    if (!params->input) {
+        fprintf(stderr, "Error: Failed to cache input in activation_forward\n");
+        return NULL;
+    }
+
+    matrix* result = NULL;
+    switch (params->type) {
+        case ACTIVATION_RELU:
+            result = relu_forward(input);
+            break;
+        case ACTIVATION_SIGMOID:
+            result = sigmoid_forward(input);
+            break;
+        case ACTIVATION_TANH:
+            result = tanh_forward(input);
+            break;
+        case ACTIVATION_SOFTMAX:
+            result = softmax_forward(input);
+            break;
+        default:
+            fprintf(stderr, "Error: Unknown activation type in activation_forward\n");
+            return NULL;
+    }
+
+    if (!result) {
+        fprintf(stderr, "Error: Activation function returned NULL\n");
+        return NULL;
+    }
+
+    // Cache the output
+    if (params->output) {
+        fprintf(stderr, "Freeing previous cached output\n");
+        matrix_free(params->output);
+    }
+    params->output = matrix_copy(result);
+    if (!params->output) {
+        fprintf(stderr, "Error: Failed to cache output\n");
+        matrix_free(result);
+        return NULL;
+    }
+
+    fprintf(stderr, "Activation forward pass completed successfully\n");
+    return result;
+}
+
+matrix* activation_backward(layer* l, matrix* gradient) {
+    fprintf(stderr, "Entering activation_backward...\n");
+    if (!l || !gradient) {
+        fprintf(stderr, "Error: Null layer or gradient in activation_backward\n");
+        return NULL;
+    }
+
+    activation_parameters* params = (activation_parameters*)l->parameters;
+    if (!params || !params->input) {
+        fprintf(stderr, "Error: Invalid parameters or no cached input in activation_backward\n");
+        return NULL;
+    }
+
+    matrix* result = NULL;
+    switch (params->type) {
+        case ACTIVATION_RELU:
+            result = relu_backward(params->input, gradient);
+            break;
+        case ACTIVATION_SIGMOID:
+            result = sigmoid_backward(params->input, gradient);
+            break;
+        case ACTIVATION_TANH:
+            result = tanh_backward(params->input, gradient);
+            break;
+        case ACTIVATION_SOFTMAX:
+            result = softmax_backward(params->input, gradient);
+            break;
+        default:
+            fprintf(stderr, "Error: Unknown activation type in activation_backward\n");
+            return NULL;
+    }
+
+    if (!result) {
+        fprintf(stderr, "Error: Activation backward pass returned NULL\n");
+        return NULL;
+    }
+
+    fprintf(stderr, "Activation backward pass completed successfully\n");
+    return result;
+}
+
+void activation_free(layer* l) {
+    fprintf(stderr, "Entering activation_free...\n");
+    if (!l) {
+        fprintf(stderr, "Activation_free called with null layer\n");
+        return;
+    }
+
+    if (l->parameters) {
+        fprintf(stderr, "Freeing activation parameters...\n");
+        activation_parameters* params = (activation_parameters*)l->parameters;
+        
+        if (params->input) {
+            fprintf(stderr, "Freeing cached input\n");
+            matrix_free(params->input);
+            params->input = NULL;
+        }
+        
+        if (params->output) {
+            fprintf(stderr, "Freeing cached output\n");
+            matrix_free(params->output);
+            params->output = NULL;
+        }
+        
+        fprintf(stderr, "Freeing parameters structure\n");
+        free(params);
+        l->parameters = NULL;
+    }
+
+    // Don't call layer_free here as it would cause recursion
+    // Instead, free the layer structure directly
+    fprintf(stderr, "Freeing activation layer structure\n");
+    l->free = NULL;  // Prevent any potential recursive calls
+    free(l);
+    
+    fprintf(stderr, "Activation_free completed\n");
+}
+
+static matrix* relu_forward(matrix* input) {
+    fprintf(stderr, "Entering relu_forward...\n");
+    if (!input) {
+        fprintf(stderr, "Error: Null input in relu_forward\n");
+        return NULL;
+    }
+
+    matrix* output = matrix_copy(input);
     if (!output) {
-        log_error("Failed to allocate ReLU output matrix");
+        fprintf(stderr, "Error: Failed to create output matrix in relu_forward\n");
         return NULL;
     }
 
@@ -48,29 +222,46 @@ matrix* relu_forward(matrix* input) {
             matrix_set(output, i, j, val > 0 ? val : 0);
         }
     }
+
+    fprintf(stderr, "ReLU forward pass completed successfully\n");
     return output;
 }
 
-matrix* relu_backward(matrix* input, matrix* gradient) {
-    matrix* output = matrix_new(gradient->num_rows, gradient->num_cols, sizeof(double));
-    if (!output) {
-        log_error("Failed to allocate ReLU gradient matrix");
+static matrix* relu_backward(matrix* input, matrix* grad_output) {
+    fprintf(stderr, "Entering relu_backward...\n");
+    if (!input || !grad_output) {
+        fprintf(stderr, "Error: Null input or grad_output in relu_backward\n");
+        return NULL;
+    }
+
+    matrix* grad_input = matrix_copy(grad_output);
+    if (!grad_input) {
+        fprintf(stderr, "Error: Failed to create gradient matrix in relu_backward\n");
         return NULL;
     }
 
     for (unsigned int i = 0; i < input->num_rows; i++) {
         for (unsigned int j = 0; j < input->num_cols; j++) {
-            double val = matrix_at(input, i, j);
-            matrix_set(output, i, j, val > 0 ? matrix_at(gradient, i, j) : 0);
+            if (matrix_at(input, i, j) <= 0) {
+                matrix_set(grad_input, i, j, 0);
+            }
         }
     }
-    return output;
+
+    fprintf(stderr, "ReLU backward pass completed successfully\n");
+    return grad_input;
 }
 
-matrix* sigmoid_forward(matrix* input) {
-    matrix* output = matrix_new(input->num_rows, input->num_cols, sizeof(double));
+static matrix* sigmoid_forward(matrix* input) {
+    fprintf(stderr, "Entering sigmoid_forward...\n");
+    if (!input) {
+        fprintf(stderr, "Error: Null input in sigmoid_forward\n");
+        return NULL;
+    }
+
+    matrix* output = matrix_copy(input);
     if (!output) {
-        log_error("Failed to allocate sigmoid output matrix");
+        fprintf(stderr, "Error: Failed to create output matrix in sigmoid_forward\n");
         return NULL;
     }
 
@@ -80,35 +271,46 @@ matrix* sigmoid_forward(matrix* input) {
             matrix_set(output, i, j, 1.0 / (1.0 + exp(-val)));
         }
     }
+
+    fprintf(stderr, "Sigmoid forward pass completed successfully\n");
     return output;
 }
 
-matrix* sigmoid_backward(matrix* input, matrix* gradient) {
-    matrix* sigmoid = sigmoid_forward(input);
-    if (!sigmoid) return NULL;
+static matrix* sigmoid_backward(matrix* input, matrix* grad_output) {
+    fprintf(stderr, "Entering sigmoid_backward...\n");
+    if (!input || !grad_output) {
+        fprintf(stderr, "Error: Null input or grad_output in sigmoid_backward\n");
+        return NULL;
+    }
 
-    matrix* output = matrix_new(gradient->num_rows, gradient->num_cols, sizeof(double));
-    if (!output) {
-        log_error("Failed to allocate sigmoid gradient matrix");
-        matrix_free(sigmoid);
+    matrix* grad_input = matrix_new(input->num_rows, input->num_cols, sizeof(double));
+    if (!grad_input) {
+        fprintf(stderr, "Error: Failed to create gradient matrix in sigmoid_backward\n");
         return NULL;
     }
 
     for (unsigned int i = 0; i < input->num_rows; i++) {
         for (unsigned int j = 0; j < input->num_cols; j++) {
-            double s = matrix_at(sigmoid, i, j);
-            matrix_set(output, i, j, matrix_at(gradient, i, j) * s * (1 - s));
+            double sigmoid = 1.0 / (1.0 + exp(-matrix_at(input, i, j)));
+            double grad = matrix_at(grad_output, i, j) * sigmoid * (1.0 - sigmoid);
+            matrix_set(grad_input, i, j, grad);
         }
     }
 
-    matrix_free(sigmoid);
-    return output;
+    fprintf(stderr, "Sigmoid backward pass completed successfully\n");
+    return grad_input;
 }
 
-matrix* tanh_forward(matrix* input) {
-    matrix* output = matrix_new(input->num_rows, input->num_cols, sizeof(double));
+static matrix* tanh_forward(matrix* input) {
+    fprintf(stderr, "Entering tanh_forward...\n");
+    if (!input) {
+        fprintf(stderr, "Error: Null input in tanh_forward\n");
+        return NULL;
+    }
+
+    matrix* output = matrix_copy(input);
     if (!output) {
-        log_error("Failed to allocate tanh output matrix");
+        fprintf(stderr, "Error: Failed to create output matrix in tanh_forward\n");
         return NULL;
     }
 
@@ -118,182 +320,115 @@ matrix* tanh_forward(matrix* input) {
             matrix_set(output, i, j, tanh(val));
         }
     }
+
+    fprintf(stderr, "Tanh forward pass completed successfully\n");
     return output;
 }
 
-matrix* tanh_backward(matrix* input, matrix* gradient) {
-    matrix* tanh_out = tanh_forward(input);
-    if (!tanh_out) return NULL;
+static matrix* tanh_backward(matrix* input, matrix* grad_output) {
+    fprintf(stderr, "Entering tanh_backward...\n");
+    if (!input || !grad_output) {
+        fprintf(stderr, "Error: Null input or grad_output in tanh_backward\n");
+        return NULL;
+    }
 
-    matrix* output = matrix_new(gradient->num_rows, gradient->num_cols, sizeof(double));
-    if (!output) {
-        log_error("Failed to allocate tanh gradient matrix");
-        matrix_free(tanh_out);
+    matrix* grad_input = matrix_new(input->num_rows, input->num_cols, sizeof(double));
+    if (!grad_input) {
+        fprintf(stderr, "Error: Failed to create gradient matrix in tanh_backward\n");
         return NULL;
     }
 
     for (unsigned int i = 0; i < input->num_rows; i++) {
         for (unsigned int j = 0; j < input->num_cols; j++) {
-            double t = matrix_at(tanh_out, i, j);
-            matrix_set(output, i, j, matrix_at(gradient, i, j) * (1 - t * t));
+            double t = tanh(matrix_at(input, i, j));
+            double grad = matrix_at(grad_output, i, j) * (1.0 - t * t);
+            matrix_set(grad_input, i, j, grad);
         }
     }
 
-    matrix_free(tanh_out);
-    return output;
+    fprintf(stderr, "Tanh backward pass completed successfully\n");
+    return grad_input;
 }
 
-matrix* softmax_forward(matrix* input) {
-    matrix* output = matrix_new(input->num_rows, input->num_cols, sizeof(double));
-    if (!output) {
-        log_error("Failed to allocate softmax output matrix");
+static matrix* softmax_forward(matrix* input) {
+    fprintf(stderr, "Entering softmax_forward...\n");
+    if (!input) {
+        fprintf(stderr, "Error: Null input in softmax_forward\n");
         return NULL;
     }
 
-    // Find max value in each column (for numerical stability)
-    for (unsigned int j = 0; j < input->num_cols; j++) {
-        double max_val = matrix_at(input, 0, j);
-        for (unsigned int i = 1; i < input->num_rows; i++) {
+    matrix* output = matrix_copy(input);
+    if (!output) {
+        fprintf(stderr, "Error: Failed to create output matrix in softmax_forward\n");
+        return NULL;
+    }
+
+    for (unsigned int i = 0; i < input->num_rows; i++) {
+        // Find max in row for numerical stability
+        double max_val = matrix_at(input, i, 0);
+        for (unsigned int j = 1; j < input->num_cols; j++) {
             max_val = fmax(max_val, matrix_at(input, i, j));
         }
 
-        // Compute exp(x - max) and sum
-        double sum = 0;
-        for (unsigned int i = 0; i < input->num_rows; i++) {
-            double val = exp(matrix_at(input, i, j) - max_val);
-            matrix_set(output, i, j, val);
-            sum += val;
+        // Compute exp and sum
+        double sum = 0.0;
+        for (unsigned int j = 0; j < input->num_cols; j++) {
+            double exp_val = exp(matrix_at(input, i, j) - max_val);
+            matrix_set(output, i, j, exp_val);
+            sum += exp_val;
         }
 
         // Normalize
-        for (unsigned int i = 0; i < input->num_rows; i++) {
-            double val = matrix_at(output, i, j) / sum;
-            matrix_set(output, i, j, val);
+        for (unsigned int j = 0; j < input->num_cols; j++) {
+            matrix_set(output, i, j, matrix_at(output, i, j) / sum);
         }
     }
+
+    fprintf(stderr, "Softmax forward pass completed successfully\n");
     return output;
 }
 
-matrix* softmax_backward(matrix* input, matrix* gradient) {
-    matrix* softmax = softmax_forward(input);
-    if (!softmax) return NULL;
-
-    matrix* output = matrix_new(gradient->num_rows, gradient->num_cols, sizeof(double));
-    if (!output) {
-        log_error("Failed to allocate softmax gradient matrix");
-        matrix_free(softmax);
+static matrix* softmax_backward(matrix* input, matrix* grad_output) {
+    fprintf(stderr, "Entering softmax_backward...\n");
+    if (!input || !grad_output) {
+        fprintf(stderr, "Error: Null input or grad_output in softmax_backward\n");
         return NULL;
     }
 
-    // For each column (each sample in the batch)
-    for (unsigned int j = 0; j < input->num_cols; j++) {
-        // Compute Jacobian-vector product
-        for (unsigned int i = 0; i < input->num_rows; i++) {
-            double sum = 0;
-            for (unsigned int k = 0; k < input->num_rows; k++) {
-                double s_i = matrix_at(softmax, i, j);
-                double s_k = matrix_at(softmax, k, j);
-                double g_k = matrix_at(gradient, k, j);
-                sum += g_k * s_i * ((i == k) ? (1 - s_k) : -s_k);
+    matrix* grad_input = matrix_new(input->num_rows, input->num_cols, sizeof(double));
+    if (!grad_input) {
+        fprintf(stderr, "Error: Failed to create gradient matrix in softmax_backward\n");
+        return NULL;
+    }
+
+    // Compute softmax forward pass result
+    matrix* softmax_output = softmax_forward(input);
+    if (!softmax_output) {
+        fprintf(stderr, "Error: Failed to compute softmax in backward pass\n");
+        matrix_free(grad_input);
+        return NULL;
+    }
+
+    // Compute Jacobian-vector product
+    for (unsigned int i = 0; i < input->num_rows; i++) {
+        for (unsigned int j = 0; j < input->num_cols; j++) {
+            double sum = 0.0;
+            double si = matrix_at(softmax_output, i, j);
+            
+            for (unsigned int k = 0; k < input->num_cols; k++) {
+                double sk = matrix_at(softmax_output, i, k);
+                double gk = matrix_at(grad_output, i, k);
+                if (j == k) {
+                    sum += gk * si * (1.0 - si);
+                } else {
+                    sum += gk * (-si * sk);
+                }
             }
-            matrix_set(output, i, j, sum);
+            matrix_set(grad_input, i, j, sum);
         }
     }
 
-    matrix_free(softmax);
-    return output;
-}
-
-matrix* activation_forward(layer* l, matrix* input) {
-    if (!l || !input) {
-        log_error("NULL layer or input in activation_forward");
-        return NULL;
-    }
-
-    activation_parameters* params = (activation_parameters*)l->parameters;
-
-    // Cache input for backprop
-    if (params->input) matrix_free(params->input);
-    params->input = matrix_copy(input);
-
-    // Select appropriate activation function
-    matrix* output = NULL;
-    switch (params->type) {
-        case ACTIVATION_RELU:
-            output = relu_forward(input);
-            break;
-        case ACTIVATION_SIGMOID:
-            output = sigmoid_forward(input);
-            break;
-        case ACTIVATION_TANH:
-            output = tanh_forward(input);
-            break;
-        case ACTIVATION_SOFTMAX:
-            output = softmax_forward(input);
-            break;
-        default:
-            log_error("Unknown activation type: %d", params->type);
-            return NULL;
-    }
-
-    // Cache output for backprop
-    if (params->output) matrix_free(params->output);
-    params->output = matrix_copy(output);
-
-    log_debug("Completed activation layer forward pass");
-    return output;
-}
-
-matrix* activation_backward(layer* l, matrix* gradient) {
-    if (!l || !gradient) {
-        log_error("NULL layer or gradient in activation_backward");
-        return NULL;
-    }
-
-    activation_parameters* params = (activation_parameters*)l->parameters;
-
-    // Select appropriate activation gradient
-    matrix* output = NULL;
-    switch (params->type) {
-        case ACTIVATION_RELU:
-            output = relu_backward(params->input, gradient);
-            break;
-        case ACTIVATION_SIGMOID:
-            output = sigmoid_backward(params->input, gradient);
-            break;
-        case ACTIVATION_TANH:
-            output = tanh_backward(params->input, gradient);
-            break;
-        case ACTIVATION_SOFTMAX:
-            output = softmax_backward(params->input, gradient);
-            break;
-        default:
-            log_error("Unknown activation type: %d", params->type);
-            return NULL;
-    }
-
-    log_debug("Completed activation layer backward pass");
-    return output;
-}
-
-void activation_update(layer* l, double learning_rate) {
-    (void)l;          // Unused parameter
-    (void)learning_rate; // Unused parameter
-    // Activation layers have no parameters to update
-    log_debug("Activation layer has no parameters to update");
-}
-
-void activation_free(layer* l) {
-    if (!l) {
-        log_warn("Attempted to free NULL activation layer");
-        return;
-    }
-
-    activation_parameters* params = (activation_parameters*)l->parameters;
-    if (params) {
-        if (params->input) matrix_free(params->input);
-        if (params->output) matrix_free(params->output);
-    }
-
-    log_debug("Freed activation layer resources");
+    matrix_free(softmax_output);
+    fprintf(stderr, "Softmax backward pass completed successfully\n");
+    return grad_input;
 }

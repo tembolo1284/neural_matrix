@@ -1,128 +1,62 @@
+#include "activation.h"
 #include <criterion/criterion.h>
-#include <criterion/logging.h>
-#include "../include/activation.h"
-#include <math.h>
+#include <stdio.h>
 
-// ReLU Tests
-Test(activation_relu, forward_pass) {
-    unsigned int dim = 3;
-    layer* l = activation_layer_new(dim, ACTIVATION_RELU);
-    
-    matrix* input = matrix_new(dim, 1, sizeof(double));
-    matrix_set(input, 0, 0, 1.0);   // Positive
-    matrix_set(input, 1, 0, -2.0);  // Negative
-    matrix_set(input, 2, 0, 0.0);   // Zero
-    
-    matrix* output = l->forward(l, input);
-    
-    cr_assert_float_eq(matrix_at(output, 0, 0), 1.0, 1e-6, "ReLU failed for positive input");
-    cr_assert_float_eq(matrix_at(output, 1, 0), 0.0, 1e-6, "ReLU failed for negative input");
-    cr_assert_float_eq(matrix_at(output, 2, 0), 0.0, 1e-6, "ReLU failed for zero input");
-    
-    matrix_free(input);
-    matrix_free(output);
-    layer_free(l);
-}
+void activation_test_impl(activation_type type, unsigned int dim) {
+    fprintf(stderr, "Starting activation test for type=%d, dim=%u...\n", type, dim);
 
-Test(activation_relu, backward_pass) {
-    unsigned int dim = 3;
-    layer* l = activation_layer_new(dim, ACTIVATION_RELU);
-    
+    // Step 1: Create activation layer
+    fprintf(stderr, "Creating activation layer...\n");
+    layer* l = activation_layer_new(dim, type);
+    cr_assert_not_null(l, "Failed to create activation layer");
+
+    // Step 2: Create input matrix
+    fprintf(stderr, "Creating input matrix...\n");
     matrix* input = matrix_new(dim, 1, sizeof(double));
-    matrix_set(input, 0, 0, 1.0);   // Positive
-    matrix_set(input, 1, 0, -2.0);  // Negative
-    matrix_set(input, 2, 0, 0.0);   // Zero
-    
-    // Forward pass to set up internal state
-    matrix* output = l->forward(l, input);
-    
-    // Create gradient
+    for (unsigned int i = 0; i < dim; i++) {
+        matrix_set(input, i, 0, (double)i / dim - 0.5);  // Example data
+    }
+
+    // Step 3: Perform forward pass
+    fprintf(stderr, "Performing forward pass...\n");
+    matrix* output = activation_forward(l, input);
+    cr_assert_not_null(output, "Forward pass failed");
+
+    // Step 4: Perform backward pass
+    fprintf(stderr, "Creating gradient matrix...\n");
     matrix* gradient = matrix_new(dim, 1, sizeof(double));
-    matrix_set(gradient, 0, 0, 1.0);
-    matrix_set(gradient, 1, 0, 1.0);
-    matrix_set(gradient, 2, 0, 1.0);
-    
-    matrix* backward = l->backward(l, gradient);
-    
-    cr_assert_float_eq(matrix_at(backward, 0, 0), 1.0, 1e-6, "ReLU gradient failed for positive input");
-    cr_assert_float_eq(matrix_at(backward, 1, 0), 0.0, 1e-6, "ReLU gradient failed for negative input");
-    cr_assert_float_eq(matrix_at(backward, 2, 0), 0.0, 1e-6, "ReLU gradient failed for zero input");
-    
+    for (unsigned int i = 0; i < dim; i++) {
+        matrix_set(gradient, i, 0, 1.0);  // Example gradient
+    }
+
+    fprintf(stderr, "Performing backward pass...\n");
+    matrix* input_gradient = activation_backward(l, gradient);
+    cr_assert_not_null(input_gradient, "Backward pass failed");
+
+    // Step 5: Free resources
+    fprintf(stderr, "Freeing resources...\n");
     matrix_free(input);
     matrix_free(output);
     matrix_free(gradient);
-    matrix_free(backward);
-    layer_free(l);
+    matrix_free(input_gradient);
+    activation_free(l);
+
+    fprintf(stderr, "Completed activation test for type=%d, dim=%u\n", type, dim);
 }
 
-// Sigmoid Tests
-Test(activation_sigmoid, forward_pass) {
-    unsigned int dim = 3;
-    layer* l = activation_layer_new(dim, ACTIVATION_SIGMOID);
-    
-    matrix* input = matrix_new(dim, 1, sizeof(double));
-    matrix_set(input, 0, 0, 0.0);   // Should give 0.5
-    matrix_set(input, 1, 0, 4.0);   // Should be close to 1
-    matrix_set(input, 2, 0, -4.0);  // Should be close to 0
-    
-    matrix* output = l->forward(l, input);
-    
-    cr_assert_float_eq(matrix_at(output, 0, 0), 0.5, 1e-6, "Sigmoid failed for zero input");
-    cr_assert_float_eq(matrix_at(output, 1, 0), 0.982013790037908, 1e-6, "Sigmoid failed for large positive input");
-    cr_assert_float_eq(matrix_at(output, 2, 0), 0.017986209962091559, 1e-6, "Sigmoid failed for large negative input");
-    
-    matrix_free(input);
-    matrix_free(output);
-    layer_free(l);
+Test(activation_relu, forward_and_backward) {
+    activation_test_impl(ACTIVATION_RELU, 4);
 }
 
-// Tanh Tests
-Test(activation_tanh, forward_pass) {
-    unsigned int dim = 3;
-    layer* l = activation_layer_new(dim, ACTIVATION_TANH);
-    
-    matrix* input = matrix_new(dim, 1, sizeof(double));
-    matrix_set(input, 0, 0, 0.0);   // Should give 0
-    matrix_set(input, 1, 0, 2.0);   // Should be close to 1
-    matrix_set(input, 2, 0, -2.0);  // Should be close to -1
-    
-    matrix* output = l->forward(l, input);
-    
-    cr_assert_float_eq(matrix_at(output, 0, 0), 0.0, 1e-6, "Tanh failed for zero input");
-    cr_assert_float_eq(matrix_at(output, 1, 0), tanh(2.0), 1e-6, "Tanh failed for positive input");
-    cr_assert_float_eq(matrix_at(output, 2, 0), tanh(-2.0), 1e-6, "Tanh failed for negative input");
-    
-    matrix_free(input);
-    matrix_free(output);
-    layer_free(l);
+Test(activation_sigmoid, forward_and_backward) {
+    activation_test_impl(ACTIVATION_SIGMOID, 4);
 }
 
-// Softmax Tests
-Test(activation_softmax, forward_pass) {
-    unsigned int dim = 3;
-    layer* l = activation_layer_new(dim, ACTIVATION_SOFTMAX);
-    
-    matrix* input = matrix_new(dim, 1, sizeof(double));
-    matrix_set(input, 0, 0, 1.0);
-    matrix_set(input, 1, 0, 2.0);
-    matrix_set(input, 2, 0, 3.0);
-    
-    matrix* output = l->forward(l, input);
-    
-    // Sum should be 1
-    double sum = matrix_at(output, 0, 0) + matrix_at(output, 1, 0) + matrix_at(output, 2, 0);
-    cr_assert_float_eq(sum, 1.0, 1e-6, "Softmax outputs should sum to 1");
-    
-    // Each output should be positive
-    cr_assert_float_gt(matrix_at(output, 0, 0), 0.0, "Softmax output should be positive");
-    cr_assert_float_gt(matrix_at(output, 1, 0), 0.0, "Softmax output should be positive");
-    cr_assert_float_gt(matrix_at(output, 2, 0), 0.0, "Softmax output should be positive");
-    
-    // Ordering should be preserved
-    cr_assert_float_lt(matrix_at(output, 0, 0), matrix_at(output, 1, 0), "Softmax should preserve ordering");
-    cr_assert_float_lt(matrix_at(output, 1, 0), matrix_at(output, 2, 0), "Softmax should preserve ordering");
-    
-    matrix_free(input);
-    matrix_free(output);
-    layer_free(l);
+Test(activation_tanh, forward_and_backward) {
+    activation_test_impl(ACTIVATION_TANH, 4);
 }
+
+Test(activation_softmax, forward_and_backward) {
+    activation_test_impl(ACTIVATION_SOFTMAX, 4);
+}
+

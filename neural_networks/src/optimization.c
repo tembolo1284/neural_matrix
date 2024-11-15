@@ -1,140 +1,129 @@
 #include "optimization.h"
-#include "dense_layer.h"
 #include <stdlib.h>
 #include <math.h>
 
-#define EPSILON 1e-8
+void optimizer_free(optimizer* opt) {
+    if (!opt) return;
 
-optimizer* optimizer_new(optimizer_type type, double learning_rate) {
-    log_debug("Creating optimizer type=%d, learning_rate=%f", type, learning_rate);
-
-    optimizer* opt = calloc(1, sizeof(optimizer));
-    if (!opt) {
-        log_error("Failed to allocate optimizer");
-        return NULL;
+    if (opt->velocity) {
+        for (unsigned int i = 0; i < opt->num_layers; i++) {
+            if (opt->velocity[i]) matrix_free(opt->velocity[i]);
+        }
+        free(opt->velocity);
     }
+
+    if (opt->cache) {
+        for (unsigned int i = 0; i < opt->num_layers; i++) {
+            if (opt->cache[i]) matrix_free(opt->cache[i]);
+        }
+        free(opt->cache);
+    }
+
+    if (opt->moment) {
+        for (unsigned int i = 0; i < opt->num_layers; i++) {
+            if (opt->moment[i]) matrix_free(opt->moment[i]);
+        }
+        free(opt->moment);
+    }
+
+    free(opt);
+}
+
+optimizer* optimizer_new(optimizer_type type, double learning_rate, unsigned int num_layers, layer** layers) {
+    optimizer* opt = calloc(1, sizeof(optimizer));
+    if (!opt) return NULL;
 
     opt->type = type;
     opt->learning_rate = learning_rate;
-    opt->num_layers = 0;
-    opt->layers = NULL;
+    opt->num_layers = num_layers;
+    opt->layers = layers;
 
-    // Initialize optimizer-specific parameters
+    // Set default values for hyperparameters
+    opt->momentum = 0.9;      // Common default for momentum
+    opt->beta1 = 0.9;         // Common default for Adam
+    opt->beta2 = 0.999;       // Common default for Adam
+    opt->epsilon = 1e-8;      // Small constant to prevent division by zero
+    opt->t = 0;               // Initialize time step
+
+    // Initialize arrays for optimizer states
     switch (type) {
-        case OPTIMIZER_SGD:
-            // No additional parameters needed
-            break;
-            
         case OPTIMIZER_MOMENTUM:
-            opt->momentum = 0.9;
-            opt->velocity = NULL;
+            opt->velocity = calloc(num_layers, sizeof(matrix*));
+            if (!opt->velocity) {
+                optimizer_free(opt);
+                return NULL;
+            }
             break;
-            
+
         case OPTIMIZER_RMSPROP:
-            opt->beta2 = 0.999;
-            opt->cache = NULL;
+            opt->cache = calloc(num_layers, sizeof(matrix*));
+            if (!opt->cache) {
+                optimizer_free(opt);
+                return NULL;
+            }
             break;
-            
+
         case OPTIMIZER_ADAM:
-            opt->beta1 = 0.9;
-            opt->beta2 = 0.999;
-            opt->moment = NULL;
-            opt->cache = NULL;
-            opt->t = 0;
+            opt->moment = calloc(num_layers, sizeof(matrix*));
+            if (!opt->moment) {
+                optimizer_free(opt);
+                return NULL;
+            }
+
+            opt->cache = calloc(num_layers, sizeof(matrix*));
+            if (!opt->cache) {
+                optimizer_free(opt);
+                return NULL;
+            }
             break;
-            
+
         default:
-            log_error("Unknown optimizer type: %d", type);
-            free(opt);
-            return NULL;
+            break;
     }
 
-    log_info("Successfully created optimizer");
     return opt;
 }
 
-void optimizer_add_layer(optimizer* opt, layer* l) {
-    if (!opt || !l) {
-        log_error("NULL optimizer or layer in optimizer_add_layer");
-        return;
-    }
+void optimizer_step(optimizer* opt) {
+    if (!opt || !opt->layers) return;
 
-    // Reallocate layer array
-    layer** new_layers = realloc(opt->layers, (opt->num_layers + 1) * sizeof(layer*));
-    if (!new_layers) {
-        log_error("Failed to reallocate layer array in optimizer");
-        return;
-    }
-
-    opt->layers = new_layers;
-    opt->layers[opt->num_layers] = l;
-    opt->num_layers++;
-
-    log_debug("Added layer to optimizer (total layers: %u)", opt->num_layers);
-}
-
-void optimizer_init(optimizer* opt) {
-    if (!opt) {
-        log_error("NULL optimizer in optimizer_init");
-        return;
-    }
-
-    // Initialize optimizer-specific storage
     switch (opt->type) {
+        case OPTIMIZER_SGD:
+            // Basic SGD just applies gradients directly
+            for (unsigned int i = 0; i < opt->num_layers; i++) {
+                if (opt->layers[i] && opt->layers[i]->update) {
+                    opt->layers[i]->update(opt->layers[i], opt->learning_rate);
+                }
+            }
+            break;
+
         case OPTIMIZER_MOMENTUM:
-            opt->velocity = calloc(opt->num_layers, sizeof(matrix*));
-            if (!opt->velocity) {
-                log_error("Failed to allocate velocity matrices");
-                return;
-            }
+            momentum_step(opt);
             break;
-            
+
         case OPTIMIZER_RMSPROP:
-            opt->cache = calloc(opt->num_layers, sizeof(matrix*));
-            if (!opt->cache) {
-                log_error("Failed to allocate cache matrices");
-                return;
-            }
+            rmsprop_step(opt);
             break;
-            
+
         case OPTIMIZER_ADAM:
-            opt->moment = calloc(opt->num_layers, sizeof(matrix*));
-            opt->cache = calloc(opt->num_layers, sizeof(matrix*));
-            if (!opt->moment || !opt->cache) {
-                log_error("Failed to allocate Adam matrices");
-                free(opt->moment);
-                free(opt->cache);
-                return;
-            }
+            adam_step(opt);
             break;
-            
-        default:
-            break;
-    }
-
-    log_debug("Initialized optimizer state");
-}
-
-void sgd_step(optimizer* opt) {
-    for (unsigned int i = 0; i < opt->num_layers; i++) {
-        layer* l = opt->layers[i];
-        if (l->update) {
-            l->update(l, opt->learning_rate);
-        }
     }
 }
 
 void momentum_step(optimizer* opt) {
+    if (!opt || !opt->layers || !opt->velocity) return;
+
     for (unsigned int i = 0; i < opt->num_layers; i++) {
         layer* l = opt->layers[i];
         dense_parameters* params = (dense_parameters*)l->parameters;
-        
+
         if (!params || !params->d_weights) continue;
 
-        // Initialize velocity if needed
+        // Initialize velocity if not exists
         if (!opt->velocity[i]) {
-            opt->velocity[i] = matrix_new(params->d_weights->num_rows, 
-                                        params->d_weights->num_cols, 
+            opt->velocity[i] = matrix_new(params->d_weights->num_rows,
+                                        params->d_weights->num_cols,
                                         sizeof(double));
         }
 
@@ -144,7 +133,7 @@ void momentum_step(optimizer* opt) {
                 double v = opt->momentum * matrix_at(opt->velocity[i], r, c) -
                           opt->learning_rate * matrix_at(params->d_weights, r, c);
                 matrix_set(opt->velocity[i], r, c, v);
-                
+
                 double w = matrix_at(params->weights, r, c) + v;
                 matrix_set(params->weights, r, c, w);
             }
@@ -153,17 +142,19 @@ void momentum_step(optimizer* opt) {
 }
 
 void rmsprop_step(optimizer* opt) {
+    if (!opt || !opt->layers || !opt->cache) return;
+
     for (unsigned int i = 0; i < opt->num_layers; i++) {
         layer* l = opt->layers[i];
         dense_parameters* params = (dense_parameters*)l->parameters;
-        
+
         if (!params || !params->d_weights) continue;
 
-        // Initialize cache if needed
+        // Initialize cache if not exists
         if (!opt->cache[i]) {
-            opt->cache[i] = matrix_new(params->d_weights->num_rows, 
-                                     params->d_weights->num_cols, 
-                                     sizeof(double));
+            opt->cache[i] = matrix_new(params->d_weights->num_rows,
+                                      params->d_weights->num_cols,
+                                      sizeof(double));
         }
 
         // Update cache and weights
@@ -173,9 +164,9 @@ void rmsprop_step(optimizer* opt) {
                 double cache = opt->beta2 * matrix_at(opt->cache[i], r, c) +
                              (1 - opt->beta2) * g * g;
                 matrix_set(opt->cache[i], r, c, cache);
-                
+
                 double w = matrix_at(params->weights, r, c) -
-                          opt->learning_rate * g / (sqrt(cache) + EPSILON);
+                          opt->learning_rate * g / (sqrt(cache) + opt->epsilon);
                 matrix_set(params->weights, r, c, w);
             }
         }
@@ -183,29 +174,31 @@ void rmsprop_step(optimizer* opt) {
 }
 
 void adam_step(optimizer* opt) {
-    opt->t++;  // Increment timestep
-    
+    if (!opt || !opt->layers || !opt->moment || !opt->cache) return;
+
     for (unsigned int i = 0; i < opt->num_layers; i++) {
         layer* l = opt->layers[i];
         dense_parameters* params = (dense_parameters*)l->parameters;
-        
+
         if (!params || !params->d_weights) continue;
 
-        // Initialize moment and cache if needed
+        // Initialize moment and cache if not exists
         if (!opt->moment[i]) {
-            opt->moment[i] = matrix_new(params->d_weights->num_rows, 
-                                      params->d_weights->num_cols, 
-                                      sizeof(double));
+            opt->moment[i] = matrix_new(params->d_weights->num_rows,
+                                       params->d_weights->num_cols,
+                                       sizeof(double));
         }
         if (!opt->cache[i]) {
-            opt->cache[i] = matrix_new(params->d_weights->num_rows, 
-                                     params->d_weights->num_cols, 
-                                     sizeof(double));
+            opt->cache[i] = matrix_new(params->d_weights->num_rows,
+                                      params->d_weights->num_cols,
+                                      sizeof(double));
         }
 
-        // Compute bias corrections
-        double bc1 = 1.0 / (1.0 - pow(opt->beta1, opt->t));
-        double bc2 = 1.0 / (1.0 - pow(opt->beta2, opt->t));
+        opt->t++; // Increment time step
+
+        // Compute bias correction terms
+        double m_correction = 1.0 / (1.0 - pow(opt->beta1, opt->t));
+        double v_correction = 1.0 / (1.0 - pow(opt->beta2, opt->t));
 
         // Update moment, cache, and weights
         for (unsigned int r = 0; r < params->d_weights->num_rows; r++) {
@@ -221,94 +214,15 @@ void adam_step(optimizer* opt) {
                 double v = opt->beta2 * matrix_at(opt->cache[i], r, c) +
                           (1 - opt->beta2) * g * g;
                 matrix_set(opt->cache[i], r, c, v);
+
+                // Apply bias correction and update weights
+                double m_hat = m * m_correction;
+                double v_hat = v * v_correction;
                 
-                // Compute bias-corrected moments
-                double m_hat = m * bc1;
-                double v_hat = v * bc2;
-                
-                // Update weights
                 double w = matrix_at(params->weights, r, c) -
-                          opt->learning_rate * m_hat / (sqrt(v_hat) + EPSILON);
+                          opt->learning_rate * m_hat / (sqrt(v_hat) + opt->epsilon);
                 matrix_set(params->weights, r, c, w);
             }
         }
     }
-}
-
-void optimizer_step(optimizer* opt) {
-    if (!opt) {
-        log_error("NULL optimizer in optimizer_step");
-        return;
-    }
-
-    switch (opt->type) {
-        case OPTIMIZER_SGD:
-            sgd_step(opt);
-            break;
-        case OPTIMIZER_MOMENTUM:
-            momentum_step(opt);
-            break;
-        case OPTIMIZER_RMSPROP:
-            rmsprop_step(opt);
-            break;
-        case OPTIMIZER_ADAM:
-            adam_step(opt);
-            break;
-        default:
-            log_error("Unknown optimizer type: %d", opt->type);
-            return;
-    }
-
-    log_debug("Completed optimizer step");
-}
-
-void optimizer_free(optimizer* opt) {
-    if (!opt) {
-        log_warn("Attempted to free NULL optimizer");
-        return;
-    }
-
-    // Free optimizer-specific storage
-    switch (opt->type) {
-        case OPTIMIZER_MOMENTUM:
-            if (opt->velocity) {
-                for (unsigned int i = 0; i < opt->num_layers; i++) {
-                    if (opt->velocity[i]) matrix_free(opt->velocity[i]);
-                }
-                free(opt->velocity);
-            }
-            break;
-            
-        case OPTIMIZER_RMSPROP:
-            if (opt->cache) {
-                for (unsigned int i = 0; i < opt->num_layers; i++) {
-                    if (opt->cache[i]) matrix_free(opt->cache[i]);
-                }
-                free(opt->cache);
-            }
-            break;
-            
-        case OPTIMIZER_ADAM:
-            if (opt->moment) {
-                for (unsigned int i = 0; i < opt->num_layers; i++) {
-                    if (opt->moment[i]) matrix_free(opt->moment[i]);
-                }
-                free(opt->moment);
-            }
-            if (opt->cache) {
-                for (unsigned int i = 0; i < opt->num_layers; i++) {
-                    if (opt->cache[i]) matrix_free(opt->cache[i]);
-                }
-                free(opt->cache);
-            }
-            break;
-            
-        default:
-            break;
-    }
-
-    free(opt->layers);
-    free(opt);
-
-    log_debug("Freed optimizer resources");
 }
