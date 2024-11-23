@@ -1,5 +1,8 @@
 # Prerequisites
 *.d
+.idea/
+build/
+Testing/
 
 # Object files
 *.o
